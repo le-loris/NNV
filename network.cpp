@@ -39,9 +39,10 @@ Network::Network(netStruct structure, int width, int height, QGraphicsScene *sce
 
 void Network::propagate()
 {
+    double cumul = 0;
     for(unsigned int l = 1; l < this->structure.nbLayers; l++){
         for(unsigned int n = 0; n < this->neuronsGraph.at(l).size(); n++){
-            double cumul = 0;
+            cumul = 0;
             for(unsigned int p = 0; p < this->neuronsGraph.at(l-1).size(); p++){
                 cumul  += this->neuronsGraph.at(l-1).at(p)->value * this->weightsGraph.at(l-1).at(p).at(n)->value ;
             }
@@ -49,6 +50,14 @@ void Network::propagate()
             this->neuronsGraph.at(l).at(n)->value = cumul;
         }
     }
+
+//    cumul = 0;
+//    for(unsigned int n = 0; n < this->neuronsGraph.back().size(); n++)
+//        cumul += this->neuronsGraph.back().at(n)->value;
+
+//    for(unsigned int n = 0; n < this->neuronsGraph.back().size(); n++)
+//        this->neuronsGraph.back().at(n)->value /= cumul;
+
 }
 
 void Network::propagate(std::vector<double> inp){
@@ -160,7 +169,7 @@ void Network::regregate(std::vector<double> error){
         std::vector<double> layer_value = get_output(i-1);
         std::vector<double> precd_value = get_output(i-2);
         std::vector<double> grad_vector = child_product(layer_error, layer_value);
-        deltas = multiply(grad_vector, precd_value, 0.05);
+        deltas = multiply(grad_vector, precd_value, 0.02);
 
 
         for(unsigned int n = 0; n < this->weightsGraph.at(i-2).size(); n++){
@@ -195,17 +204,16 @@ void Network::setData(std::vector<TrainingData> newData)
 void Network::train(){
     std::vector<double> *errors = new std::vector<double>[this->data.size()];
     double avgError;
-    double maxError;
 
     while(this->theardRun){
         avgError = 0;
-        maxError = 0;
+        this->currentError = 0;
         for(currentData = 0; currentData < this->data.size(); currentData++){
             auto tData = this->data.at(currentData);
             std::vector<double> err = error_calculation(tData);
             double genErr = err.back(); err.pop_back();
             avgError += genErr;
-            maxError = MAX(maxError,genErr);
+            currentError = MAX(currentError,genErr);
 
             //qDebug() << d << ":" << genErr/10.f << "%";
             errors[currentData].push_back(genErr);
@@ -214,8 +222,14 @@ void Network::train(){
         }
         avgError /= this->data.size();
 
-        if(((avgError < 40) && (maxError < 50)) || (errors[0].size() >= 50000))
+        if(((avgError < 40) && (this->currentError < this->endError)) || (errors[0].size() >= 50000))
             this->theardRun = false;
+
+        if(startError < 0)
+            startError = currentError;
+
+        //if(errors[0].size() % 100 == 0)
+            emit propagated();
     }
 
     qDebug() << avgError << errors[0].size();
@@ -235,7 +249,13 @@ void Network::train(){
         f.write("\n");
     }
     f.close();
+}
 
+double Network::get_advance(){
+    if(this->currentError<this->endError)
+        return 100;
+    else
+        return 100*(1 - ((1 - this->currentError/this->endError)/(1 - this->startError/this->endError)));
 }
 
 void Network::nextData(){

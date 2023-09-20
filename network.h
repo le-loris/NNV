@@ -46,7 +46,8 @@ public:
 
     void stopThread();
 
- public slots:
+    double get_advance();
+public slots:
     void prevData();
     void nextData();
 
@@ -60,6 +61,10 @@ private:
     QGraphicsScene *scene = nullptr;
     std::vector<TrainingData> data;
     std::vector<std::vector<std::vector<double>>> get_weights_matrix();
+
+    double startError=-1;
+    double currentError;
+    double endError = 50;
 
     unsigned int currentData = 0;
 };

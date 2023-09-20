@@ -27,9 +27,12 @@ public:
     Ui::MainWindow *ui;
 
     void create_data();
+
 public slots:
     void show();
     void start();
+    void update();
+
 private:
     QTimer *frames = new QTimer();
     std::vector<TrainingData> data;

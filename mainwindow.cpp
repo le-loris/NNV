@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::start(){
     this->network = new Network(structure, this->width(), this->height(), this->scene);
     this->network->setData(data);
-    connect(this->network, SIGNAL(propagated()), this->scene, SLOT(update()));
+    connect(this->network, SIGNAL(propagated()), this, SLOT(update()));
     connect(this->ui->next_button, SIGNAL(clicked(bool)), this->network, SLOT(nextData()));
     connect(this->ui->prev_button, SIGNAL(clicked(bool)), this->network, SLOT(prevData()));
 
@@ -50,6 +50,13 @@ void MainWindow::start(){
 
     this->tm = new ThreadManager(this->network);
 
+}
+
+void MainWindow::update(){
+
+    this->ui->progressBar->setValue(this->network->get_advance());
+    this->scene->update();
+    QMainWindow::update();
 }
 
 void MainWindow::show(){
@@ -66,7 +73,11 @@ void MainWindow::create_data(){
     data.push_back(TrainingData{inp, out});
 
     inp = {0.150, 0.150, 0.700};
-    out ={0.100, 0.900};
+    out ={0.200, 0.800};
+    data.push_back(TrainingData{inp, out});
+
+    inp = {0.200, 0.250, 0.550};
+    out ={0.300, 0.700};
     data.push_back(TrainingData{inp, out});
 
     inp = {0.200, 0.600, 0.200};

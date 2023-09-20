@@ -30,17 +30,20 @@
     <property name="spacing">
      <number>1</number>
     </property>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="next_button">
-      <property name="text">
-       <string>Next</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
      <widget class="QPushButton" name="prev_button">
       <property name="text">
        <string>Previous</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="4">
+     <widget class="QGraphicsView" name="graphicsView"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="next_button">
+      <property name="text">
+       <string>Next</string>
       </property>
      </widget>
     </item>
@@ -57,8 +60,12 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="0" rowspan="4">
-     <widget class="QGraphicsView" name="graphicsView"/>
+    <item row="4" column="0">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
