@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     fonctions.cpp \
+    graphicsview.cpp \
     main.cpp \
     mainwindow.cpp \
     network.cpp \
@@ -19,6 +20,25 @@ SOURCES += \
 
 HEADERS += \
     fonctions.h \
+    graphicsview.h \
+    mainwindow.h \
+    network.h \
+    neuron.h \
+    threadmanager.h \
+    weight.h
+
+FORMS += \
+    mainwindow.ui
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+
+
+HEADERS += \
+    fonctions.h \
+    graphicsview.h \
     mainwindow.h \
     network.h \
     neuron.h \

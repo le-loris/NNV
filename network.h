@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QMainWindow>
-#include <QGraphicsView>
+#include "graphicsview.h"
 #include "neuron.h"
 #include "weight.h"
 #include "fonctions.h"
@@ -47,6 +47,8 @@ public:
     void stopThread();
 
     double get_advance();
+
+    inline void setPlot(GraphicsView* plt){ this->plot = plt; }
 public slots:
     void prevData();
     void nextData();
@@ -64,9 +66,11 @@ private:
 
     double startError=-1;
     double currentError;
-    double endError = 50;
+    double endError = 25;
 
     unsigned int currentData = 0;
+
+    GraphicsView *plot = nullptr;
 };
 
 #endif // NETWORK_H

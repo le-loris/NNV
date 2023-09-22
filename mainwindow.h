@@ -19,8 +19,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    QGraphicsScene *scene;
-
     Network *network = nullptr;
     netStruct structure;
 

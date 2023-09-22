@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->ui->plot->setType(PLOT);
 
     auto args = QCoreApplication::arguments();
     args.pop_front();
@@ -24,38 +25,39 @@ MainWindow::MainWindow(QWidget *parent)
             structure.layers[i] = l.at(i);
     }
 
-    this->scene = new QGraphicsScene();
-    this->ui->graphicsView->setScene(scene);
-
     create_data();
 
 //    this->resize(960, 1060);
 //    this->move(0,0);
 //    this->show();
     this->showMaximized();
+
     connect(frames, &QTimer::timeout, this, &MainWindow::start);
     frames->setSingleShot(true);
     frames->start(50);
 }
 
 void MainWindow::start(){
-    this->network = new Network(structure, this->width(), this->height(), this->scene);
+    this->network = new Network(structure, this->ui->view->width(), this->ui->view->height(), this->ui->view->getScene());
     this->network->setData(data);
+    this->network->setPlot(this->ui->plot);
     connect(this->network, SIGNAL(propagated()), this, SLOT(update()));
     connect(this->ui->next_button, SIGNAL(clicked(bool)), this->network, SLOT(nextData()));
     connect(this->ui->prev_button, SIGNAL(clicked(bool)), this->network, SLOT(prevData()));
 
     this->network->propagate();
-    this->scene->update();
-
+    this->ui->view->update();
+    this->ui->plot->update();
+    drawRules();
     this->tm = new ThreadManager(this->network);
 
 }
 
 void MainWindow::update(){
 
+    this->ui->view->update();
+    this->ui->plot->update();
     this->ui->progressBar->setValue(this->network->get_advance());
-    this->scene->update();
     QMainWindow::update();
 }
 
@@ -94,4 +96,3 @@ MainWindow::~MainWindow()
     delete tm;
     delete ui;
 }
-

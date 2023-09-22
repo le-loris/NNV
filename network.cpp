@@ -110,6 +110,7 @@ std::vector<double> Network::get_output(double layer){
 std::vector<double> Network::error_calculation(TrainingData data){
     this->set_input(data.inp);
     this->propagate();
+    //emit propagated();
 
     auto result = this->get_output();
 
@@ -203,36 +204,42 @@ void Network::setData(std::vector<TrainingData> newData)
 
 void Network::train(){
     std::vector<double> *errors = new std::vector<double>[this->data.size()];
-    double avgError;
+    double maxError = 0;
 
     while(this->theardRun){
-        avgError = 0;
-        this->currentError = 0;
+        maxError = 0;
         for(currentData = 0; currentData < this->data.size(); currentData++){
             auto tData = this->data.at(currentData);
             std::vector<double> err = error_calculation(tData);
             double genErr = err.back(); err.pop_back();
-            avgError += genErr;
-            currentError = MAX(currentError,genErr);
+            maxError = MAX(maxError,genErr);
 
             //qDebug() << d << ":" << genErr/10.f << "%";
             errors[currentData].push_back(genErr);
             regregate(err);
-
         }
-        avgError /= this->data.size();
 
-        if(((avgError < 40) && (this->currentError < this->endError)) || (errors[0].size() >= 50000))
-            this->theardRun = false;
 
         if(startError < 0)
-            startError = currentError;
+            startError = currentError = maxError;
+        currentError = MIN(currentError, maxError);
 
-        //if(errors[0].size() % 100 == 0)
+        if((this->currentError < this->endError) /*|| (errors[0].size() >= 30000)*/){
+            this->theardRun = false;
+            this->plot->append(QPoint(errors[0].size()/100.f, this->currentError));
             emit propagated();
+        }
+
+        if(errors[0].size() % 100 == 0){
+            this->plot->append(QPoint(errors[0].size()/100 -1, this->currentError));
+            emit propagated();
+        }
     }
 
-    qDebug() << avgError << errors[0].size();
+    emit propagated();
+    std::vector<double> err = error_calculation(this->data.at(1));
+
+    qDebug() << currentError << errors[0].size();
     QFile f("../NNV/log.csv");
     f.open(QFile::WriteOnly);
     for(unsigned int i = 0; i < errors[0].size(); i++){
@@ -252,7 +259,7 @@ void Network::train(){
 }
 
 double Network::get_advance(){
-    if(this->currentError<this->endError)
+    if(this->currentError <= this->endError)
         return 100;
     else
         return 100*(1 - ((1 - this->currentError/this->endError)/(1 - this->startError/this->endError)));
